@@ -1,25 +1,50 @@
 # /etc/nixos/configuration.nix
+# copy this file to /etc/nixos/configuration.nix and run `nixos-install`
+# then `nixos-rebuild switch`
 # 2023-06-26 - first install
-
 # help in configuration.nix(5) or in `nixos-help`
+
+# temporary installs:
+#   nix-env -iA nixos.firefox
+#   nix-env -q
+#   nix-env --uninstall firefox
+
+# updates:
+#   nix-channel --add <url>
+#   nix-channel --update
+#   nixos-rebuild upgrade
+#   nix-env -u '*'
 
 { config, pkgs, ... }: {
   networking.hostName = "nixos-laptop";
-  
+  nix = {
+    settings.auto-optimise-store = true;
+    gc = {
+      automatic = true;
+      dates = "weekly";
+      options = "--delete-older-than 7d";
+    };
+  };
   imports =
     [
       ./hardware-configuration.nix
     ];
 
   boot.loader = {
-    systemd-boot.enable = true;
     efi.canTouchEfiVariables = true;
+    # systemd-boot.enable = true;
+    grub = {
+      enable = true;
+      device = "nodev"; # if not EFI, use "/dev/sda"
+      efiSupport = true;
+      useOSProber = true; # it works after second install
+    };
+    timeout = 2;
   };
 
   networking.networkmanager.enable = true;
 
   time.timeZone = "Europe/Warsaw";
-
   i18n.defaultLocale = "en_US.UTF-8";
   i18n.extraLocaleSettings = let
       extraLocale = "pl_PL.UTF-8";
@@ -34,21 +59,28 @@
         LC_TELEPHONE = extraLocale;
         LC_TIME = extraLocale;
     };
-  services.xserver = { # X11
-    enable = true;
-    layout = "pl";
-  };
   console = {
     font = "Lat2-Terminus16";
     keyMap = "pl";
   };
+  services.xserver = { # X11
+    layout = "pl";
+    enable = true;
 
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
 
-  services.printing.enable = true;
 
-  sound.enable = true;
+    displayManager = {
+      gdm.enable = true;
+      defaultSession = "gnome-xorg"; # `xfce` vs `xfce+bspwm` vs `none+bspwm`
+    };
+    desktopManager.gnome.enable = true;
+    # windowManager.bspwm.enable = true;
+  };
+
+  sound = {
+    enable = true;
+    mediaKeys.enable = true;
+  };
   hardware.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -56,6 +88,7 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # bluetooth?
   };
 
   # Enable touchpad support (enabled default in most desktopManager).
@@ -70,16 +103,25 @@
   users.users.nircek = {
     isNormalUser = true;
     description = "Marcin Zepp";
-    extraGroups = [ "networkmanager" "wheel" ];
+    extraGroups = [
+      "networkmanager"
+      "wheel"
+      "video"
+      "audio"
+      "lp"
+      "scanner"
+    ];
     packages = with pkgs; [
+      # better to use options if possible
       firefox
     ];
   };
   nixpkgs.config.allowUnfree = true;
+  # see https://nixos.wiki/wiki/Overlays
 
   # $ nix search wget
   environment.systemPackages = with pkgs; [
-  
+    git
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -91,6 +133,7 @@
   };
 
   services = {
+    printing.enable = true;
     openssh.enable = true;
   };
 

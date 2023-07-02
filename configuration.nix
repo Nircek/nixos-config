@@ -37,7 +37,7 @@
       enable = true;
       device = "nodev"; # if not EFI, use "/dev/sda"
       efiSupport = true;
-      useOSProber = true; # it works after second install
+      # useOSProber = true; # it works after second install
     };
     timeout = 2;
   };
@@ -131,10 +131,31 @@
     enable = true;
     enableSSHSupport = true;
   };
-
+  hardware.printers.ensurePrinters = [{
+    name = "Brother_DCP-J132W";
+    deviceUri = "ipp://192.168.1.10/ipp/port1";  # see https://wiki.archlinux.org/title/CUPS/Printer-specific_problems#Network_printers
+    model = "everywhere";  # don't work; go to http://localhost:631/printers/Brother_DCP-J132W -> Maintenance/Modify Printer -> 2x Continue -> Generic/IPP Everywhere
+  }];
+  hardware.sane = {
+    enable = true;
+    brscan4 = {
+      enable = true;
+      netDevices = {
+        DCP_J132W = { model = "DCP-J132W"; ip = "192.168.1.10"; };
+      };
+    };
+  };
   services = {
     printing.enable = true;
-    openssh.enable = true;
+    avahi = {
+      enable = true;
+      nssmdns = true;
+      openFirewall = true;
+    };
+    openssh = {
+      enable = true;
+      openFirewall = true;
+    };
   };
 
   networking.firewall.allowedTCPPorts = [ 22 ];

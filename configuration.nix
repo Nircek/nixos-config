@@ -12,7 +12,7 @@
 # updates:
 #   nix-channel --add <url>
 #   nix-channel --update
-#   nixos-rebuild upgrade
+#   nixos-rebuild switch --upgrade
 #   nix-env -u '*'
 
 { lib, config, pkgs, ... }: {
@@ -78,6 +78,7 @@
     gnome-tour
   ]) ++ (with pkgs.gnome; [
     # gnome-calculator
+    gnome-calendar
     # gnome-characters
     # gnome-contacts
     # gnome-disk-utility
@@ -94,6 +95,7 @@
     evince # document viewer
     # file-roller # archive manager
     geary # email reader
+    # nautilus # file manager
     # seahorse # passwords and keys
     # simple-scan
     totem # video player

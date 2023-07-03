@@ -196,6 +196,8 @@
       }
       grml_theme_add_token nix-shell-indicator -f nix_shell_prompt '%F{magenta}' '%f'
       zstyle ':prompt:grml:left:setup' items rc nix-shell-indicator change-root user at host path vcs percent
+      # see https://discourse.nixos.org/t/grml-zsh-config-auto-completion-issue-in-nixos/29937
+      zstyle -d ':completion:*:sudo:*' command-path
       HISTSIZE=16777216  # programs.zsh.histSize would be overrided
       SAVEHIST=13421772800
       zstyle ':prompt:grml:left:items:user' pre '%F{cyan}%B'

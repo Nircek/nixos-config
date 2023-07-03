@@ -150,6 +150,7 @@
     udftools
     # better to use options if possible
     firefox
+    chromium
     obs-studio
     libreoffice
     hunspell
@@ -185,7 +186,6 @@
 
   programs.zsh = {
     enable = true;
-    # see https://discourse.nixos.org/t/grml-zsh-config-auto-completion-issue-in-nixos/29937
     interactiveShellInit = ''
       source ${pkgs.grml-zsh-config}/etc/zsh/zshrc
       # Add nix-shell indicator that makes clear when we're in nix-shell.
@@ -255,7 +255,31 @@
       openFirewall = true;
     };
   };
+  # lenovo specific
+  # consider adding <nixos-hardware/lenovo/ideapad>
+  boot.initrd.kernelModules = [ "i915" ];
 
+  environment.variables = {
+    VDPAU_DRIVER = lib.mkIf config.hardware.opengl.enable (lib.mkDefault "va_gl");
+  };
+
+  hardware.opengl.extraPackages = with pkgs; [
+    vaapiIntel
+    libvdpau-va-gl
+    intel-media-driver
+  ];
+
+  hardware.cpu.intel.updateMicrocode =
+    lib.mkDefault config.hardware.enableRedistributableFirmware;
+  # Gnome 40 introduced a new way of managing power, without tlp.
+  # However, these 2 services clash when enabled simultaneously.
+  # https://github.com/NixOS/nixos-hardware/issues/260
+  services.tlp.enable = lib.mkDefault ((lib.versionOlder (lib.versions.majorMinor lib.version) "21.05")
+                                       || !config.services.power-profiles-daemon.enable);
+  boot.blacklistedKernelModules = lib.optionals (!config.hardware.enableRedistributableFirmware) [
+    "ath3k"
+  ];
+  services.fstrim.enable = lib.mkDefault true; # ssd only
   # networking.firewall.allowedTCPPorts = [ ];
   # networking.firewall.allowedUDPPorts = [ ];
 

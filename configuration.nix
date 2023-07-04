@@ -1,6 +1,11 @@
 # /etc/nixos/configuration.nix
-# copy this file to /etc/nixos/configuration.nix and run `nixos-install`
-# then `nixos-rebuild switch`
+# copy this file to /mnt/etc/nixos/configuration.nix and run:
+#   swapon
+#   mount /mnt/boot/efi  # EF00
+#   nixos-generate-config --root /mnt
+#   wpa-cli  # add_network; set_network 0 {ssid "",psk "",key_mgmt WPA-PSK}; enable_network
+#   nixos-install
+
 # 2023-06-26 - first install
 # help in configuration.nix(5) or in `nixos-help`
 
@@ -269,8 +274,10 @@
     intel-media-driver
   ];
 
-  hardware.cpu.intel.updateMicrocode =
-    lib.mkDefault config.hardware.enableRedistributableFirmware;
+  # microcode already in hardware-configuration.nix
+  # config.hardware.enableRedistributableFirmware = true; -- already true, why?
+  services.fstrim.enable = true; # ssd only
+
   # Gnome 40 introduced a new way of managing power, without tlp.
   # However, these 2 services clash when enabled simultaneously.
   # https://github.com/NixOS/nixos-hardware/issues/260
@@ -279,7 +286,7 @@
   boot.blacklistedKernelModules = lib.optionals (!config.hardware.enableRedistributableFirmware) [
     "ath3k"
   ];
-  services.fstrim.enable = lib.mkDefault true; # ssd only
+
   # networking.firewall.allowedTCPPorts = [ ];
   # networking.firewall.allowedUDPPorts = [ ];
 

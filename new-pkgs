@@ -1,0 +1,65 @@
+
+/* rustup
+         cargo-edit
+         cargo-hakari
+         cargo-binutils
+         cargo-make
+         elan
+         gcc
+         docker-compose
+
+         wpsoffice
+         filelight
+         qq
+       ormolu
+       nixfmt
+       xmobar
+       fd
+       jq
+       ripgrep
+       bottom
+       light
+       kitty
+       nil
+       alejandra
+       feh
+       unzip
+       unar
+       black
+       pylint
+       erlfmt
+       erlang-ls
+       starship
+       gwenview
+       deno
+       shadowsocks-rust
+       tree
+       obs-studio
+       protobuf
+       jdk11_headless
+       xdg-desktop-portal
+       ormolu
+
+   fonts.fonts = with pkgs; [
+     noto-fonts
+     noto-fonts-cjk-sans
+     noto-fonts-cjk-serif
+     noto-fonts-extra
+     noto-fonts-emoji
+     fira-code
+     sarasa-gothic
+
+     roboto-mono
+     nerdfonts
+   ];
+
+     pciutils
+     usbutils
+
+     smartmontools
+     lm_sensors
+     hddtemp
+
+     tmux
+     gnumake
+*/

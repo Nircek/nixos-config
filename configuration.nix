@@ -3,7 +3,8 @@
 #   swapon
 #   mount /mnt/boot/efi  # EF00
 #   nixos-generate-config --root /mnt
-#   wpa-cli  # add_network; set_network 0 {ssid "",psk "",key_mgmt WPA-PSK}; enable_network
+#   systemctl start wpa_supplicant
+#   wpa_cli  # add_network; set_network 0 {ssid "",psk "",key_mgmt WPA-PSK}; enable_network
 #   nixos-install
 
 # 2023-06-26 - first install
@@ -23,7 +24,7 @@
 { lib, config, pkgs, ... }: {
   networking.hostName = "nixos-laptop";
   nix = {
-    settings.auto-optimise-store = true;
+    # settings.auto-optimise-store = true;
     gc = {
       automatic = true;
       dates = "weekly";
@@ -34,6 +35,7 @@
 
   boot.loader = {
     efi.canTouchEfiVariables = true;
+    efi.efiSysMountPoint = "/boot/efi";
     # systemd-boot.enable = true;
     grub = {
       enable = true;
@@ -128,7 +130,12 @@
       naturalScrolling = true;
     };
   };
-  services.logind.lidSwitch = "ignore";
+  services.logind = {
+    lidSwitch = "ignore";
+    extraConfig = ''
+      RuntimeDirectorySize=2G
+    '';
+  };
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   users.users.nircek = {

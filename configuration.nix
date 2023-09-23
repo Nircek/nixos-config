@@ -50,23 +50,25 @@
 
   time.timeZone = "Europe/Warsaw";
   i18n.defaultLocale = "en_US.UTF-8";
-  i18n.extraLocaleSettings = let extraLocale = "pl_PL.UTF-8";
-  in {
-    LC_ADDRESS = extraLocale;
-    LC_IDENTIFICATION = extraLocale;
-    LC_MEASUREMENT = extraLocale;
-    LC_MONETARY = extraLocale;
-    LC_NAME = extraLocale;
-    LC_NUMERIC = extraLocale;
-    LC_PAPER = extraLocale;
-    LC_TELEPHONE = extraLocale;
-    LC_TIME = extraLocale;
-  };
+  i18n.extraLocaleSettings =
+    let extraLocale = "pl_PL.UTF-8";
+    in {
+      LC_ADDRESS = extraLocale;
+      LC_IDENTIFICATION = extraLocale;
+      LC_MEASUREMENT = extraLocale;
+      LC_MONETARY = extraLocale;
+      LC_NAME = extraLocale;
+      LC_NUMERIC = extraLocale;
+      LC_PAPER = extraLocale;
+      LC_TELEPHONE = extraLocale;
+      LC_TIME = extraLocale;
+    };
   console = {
     font = "Lat2-Terminus16";
     keyMap = "pl";
   };
-  services.xserver = { # X11
+  services.xserver = {
+    # X11
     layout = "pl";
     enable = true;
 
@@ -148,6 +150,64 @@
 
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # ------------------------------------- android studio and tools
+    git
+    gitRepo
+    gnupg
+    curl
+    procps
+    openssl
+    gnumake
+    nettools
+    # For nixos < 19.03, use `androidenv.platformTools`
+    androidenv.androidPkgs_9_0.platform-tools
+    python311Packages.pyaxmlparser
+    android-tools
+    android-studio
+    jdk
+    openjdk8
+    schedtool
+    util-linux
+    m4
+    gperf
+    perl
+    libxml2
+    zip
+    unzip
+    bison
+    flex
+    lzop
+    python3
+    # ------------------------------------- python
+    python3Packages.python
+    python3Packages.tkinter
+    python3Packages.black
+    taglib
+    openssl
+    git
+    libxml2
+    libxslt
+    libzip
+    zlib
+    tk
+    glib
+    libGLU
+
+
+    # ------------------------------------- rust
+    cargo
+    rustc
+    rust-analyzer
+    rustfmt
+    clippy
+    cargo-generate
+    wasm-pack
+    wasm-bindgen-cli
+    binaryen # wasm-opt; see https://github.com/NixOS/nixpkgs/issues/156890#issuecomment-1119221502
+    pkg-config
+    openssl
+
+    # -------------------------------------
     python3
     git
     glances
@@ -177,10 +237,19 @@
     gparted
     transmission-gtk
     (vscode-with-extensions.override {
-      vscodeExtensions = with vscode-extensions; [ bbenoist.nix ];
+      vscodeExtensions = with vscode-extensions; [
+        bbenoist.nix
+        ritwickdey.liveserver
+
+        ms-python.python
+        ms-python.vscode-pylance
+      ];
     })
     spotify-wrapped # use /nix/store/*-spotify-*/bin/spotify to log in
     virt-manager
+    # ***
+    safeeyes
+    nixpkgs-fmt
   ];
   nixpkgs.overlays = [
     (final: prev: {
@@ -290,7 +359,7 @@
   # However, these 2 services clash when enabled simultaneously.
   # https://github.com/NixOS/nixos-hardware/issues/260
   services.tlp.enable = lib.mkDefault ((lib.versionOlder (lib.versions.majorMinor lib.version) "21.05")
-                                       || !config.services.power-profiles-daemon.enable);
+    || !config.services.power-profiles-daemon.enable);
   boot.blacklistedKernelModules = lib.optionals (!config.hardware.enableRedistributableFirmware) [
     "ath3k"
   ];
